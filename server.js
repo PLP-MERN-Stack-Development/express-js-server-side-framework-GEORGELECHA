@@ -1,71 +1,58 @@
-// server.js - Starter Express server for Week 2 assignment
-
-// Import required modules
+// server.js - Updated with all middleware
 const express = require('express');
 const bodyParser = require('body-parser');
-const { v4: uuidv4 } = require('uuid');
+const dotenv = require('dotenv');
+const connectDB = require('./config /dbConnector');
+
+// Import middleware
+const logger = require('./middleware/logger');
+const errorHandler = require('./middleware/errorHandler');
+
+
+// Load environment variables from .env file
+dotenv.config();
 
 // Initialize Express app
-const app = express();
+const ecomApp = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware setup
-app.use(bodyParser.json());
 
-// Sample in-memory products database
-let products = [
-  {
-    id: '1',
-    name: 'Laptop',
-    description: 'High-performance laptop with 16GB RAM',
-    price: 1200,
-    category: 'electronics',
-    inStock: true
-  },
-  {
-    id: '2',
-    name: 'Smartphone',
-    description: 'Latest model with 128GB storage',
-    price: 800,
-    category: 'electronics',
-    inStock: true
-  },
-  {
-    id: '3',
-    name: 'Coffee Maker',
-    description: 'Programmable coffee maker with timer',
-    price: 50,
-    category: 'kitchen',
-    inStock: false
-  }
-];
+// 1. Custom logger middleware (logs all requests)
+ecomApp.use(logger);
+
+// 2. JSON body parser middleware
+ecomApp.use(bodyParser.json());
+
+// 3. Connect to MongoDB using Mongoose
+connectDB();
+
+// Routes
+ecomApp.use('/api/products', require('./routes/productRoutes'));
 
 // Root route
-app.get('/', (req, res) => {
-  res.send('Welcome to the Product API! Go to /api/products to see all products.');
+ecomApp.get('/', (req, res) => {
+    res.send('Welcome to the Product API! Go to /api/products to see all products.');
 });
 
-// TODO: Implement the following routes:
-// GET /api/products - Get all products
-// GET /api/products/:id - Get a specific product
-// POST /api/products - Create a new product
-// PUT /api/products/:id - Update a product
-// DELETE /api/products/:id - Delete a product
-
-// Example route implementation for GET /api/products
-app.get('/api/products', (req, res) => {
-  res.json(products);
+// Health check route (no authentication required)
+ecomApp.get('/health', (req, res) => {
+    res.status(200).json({ 
+        status: 'OK', 
+        timestamp: new Date().toISOString(),
+        service: 'Product API'
+    });
 });
 
-// TODO: Implement custom middleware for:
-// - Request logging
-// - Authentication
-// - Error handling
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+
+// 4. Global error handling middleware (should be last)
+ecomApp.use(errorHandler);
 
 // Export the app for testing purposes
-module.exports = app; 
+module.exports = ecomApp; 
+
+// Start the server
+ecomApp.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});

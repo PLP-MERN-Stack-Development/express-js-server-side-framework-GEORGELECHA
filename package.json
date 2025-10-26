@@ -1,0 +1,21 @@
+{
+  "name": "express-js-server-side-framework-georgelecha",
+  "version": "1.0.0",
+  "description": "This assignment focuses on building a RESTful API using Express.js, implementing proper routing, middleware, and error handling.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "mongoose": "^8.19.2",
+    "nodemon": "^3.1.10",
+    "uuid": "^13.0.0"
+  }
+}
